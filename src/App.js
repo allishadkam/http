@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import MoviesList from './components/MoviesList';
 import './App.css';
@@ -7,12 +7,13 @@ function App() {
   const [Movies,setMovies]=useState([]);
   const [isloading,setisloading]=useState(false)
   const [error,seterror]=useState(null);
+  
 
-  async function handelrequest () {
+  const handelrequest = useCallback(async()=>{
     setisloading(true)
     seterror(null);
     try {
-      const resualts=await fetch("https://swapi.dev/api/film")
+      const resualts=await fetch("https://swapi.dev/api/films")
       if (!resualts.ok){
         throw new Error("error . prossecc failed !")
       }
@@ -35,9 +36,9 @@ function App() {
     }
     setisloading(false)
 
-  }
+  },[]) 
   
-  
+  useEffect(()=>{handelrequest()},[ handelrequest])
   
 
   return (
