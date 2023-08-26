@@ -5,12 +5,20 @@ import './App.css';
 
 function App() {
   const [Movies,setMovies]=useState([]);
+  const [isloading,setisloading]=useState(false)
+  const [error,seterror]=useState(null);
 
-  const handelrequest=()=>{
-    console.log('func run')
-    fetch("https://swapi.dev/api/films").then(resualts=>{
-      return resualts.json()  
-  }).then(data=>{
+  async function handelrequest () {
+    setisloading(true)
+    seterror(null);
+    try {
+      const resualts=await fetch("https://swapi.dev/api/film")
+      if (!resualts.ok){
+        throw new Error("error . prossecc failed !")
+      }
+    const data=await resualts.json();
+
+    
 
     const parsed=data.results.map(item=>{
       return {
@@ -22,9 +30,14 @@ function App() {
       
     })
     setMovies(parsed)
-  })
+    } catch (error) {
+      seterror(error.message)
+    }
+    setisloading(false)
+
+  }
   
-  };
+  
   
 
   return (
@@ -33,7 +46,9 @@ function App() {
         <button onClick={handelrequest}>Fetch Movies</button>
       </section>
       <section>
-      <MoviesList movies={Movies}/>
+        {isloading && <p>loading ...</p>}
+      {!isloading &&<MoviesList movies={Movies}/>}
+      {!isloading && error &&<p>{error}</p>}
       </section>
     </React.Fragment>
   );
