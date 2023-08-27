@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 
 import MoviesList from './components/MoviesList';
 import './App.css';
+import AddMovie from './components/AddMovie';
 
 function App() {
   const [Movies,setMovies]=useState([]);
@@ -13,24 +14,23 @@ function App() {
     setisloading(true)
     seterror(null);
     try {
-      const resualts=await fetch("https://swapi.dev/api/films")
+      const resualts=await fetch("https://test-posting-movies-default-rtdb.firebaseio.com/movies.json")
       if (!resualts.ok){
         throw new Error("error . prossecc failed !")
       }
     const data=await resualts.json();
 
+    const movielist=[];
+    for(const key in data){
+      movielist.push({
+        id:key,
+        title:data[key].title,
+        openingText:data[key].openingText,
+        releaseDate:data[key].releaseDate,
+      })
+    }
     
-
-    const parsed=data.results.map(item=>{
-      return {
-        id:item.episode_id,
-        title:item.title,
-        openingText:item.opening_crawl,
-        releaseDate:item.release_date
-      };
-      
-    })
-    setMovies(parsed)
+    setMovies(movielist)
     } catch (error) {
       seterror(error.message)
     }
@@ -40,9 +40,23 @@ function App() {
   
   useEffect(()=>{handelrequest()},[ handelrequest])
   
+  async function addmoviehandler (Movie){
+    const response=await fetch("https://test-posting-movies-default-rtdb.firebaseio.com/movies.json",{
+      method:"POST",
+      body: JSON.stringify(Movie),
+      headers:{
+        "Content-Type":"Aplication/json"
+      }
+    })
+    const data=await response.json();
+    console.log(data)
+  }
 
   return (
     <React.Fragment>
+      <section>
+        <AddMovie onAddMovie={addmoviehandler}/>
+      </section>
       <section>
         <button onClick={handelrequest}>Fetch Movies</button>
       </section>
